@@ -18,7 +18,15 @@ object Practice {
       * @param n amount of items to take.
       * @return the first n items of xs.
       */
-    def firstN(xs: List[Int], n: Int): List[Int] = ???
+    def firstN(xs: List[Int], n: Int): List[Int] = {
+
+        (xs, n) match {
+            case (_, n) if (n<=0) => Nil
+            case (head :: tail, _) => head :: firstN(tail, n-1)
+            case (head :: Nil, _) => List(head)
+            case (Nil, _) => Nil
+        }
+    }
 
 
     /** Q11 (4p)
@@ -28,7 +36,13 @@ object Practice {
       * @param xs list to process.
       * @return the maximum value in the list.
       */
-    def maxValue(xs: List[Int]): Int = ???
+    def maxValue(xs: List[Int]): Int = {
+        xs match {
+            case Nil => Int.MinValue
+            case head :: tail if head > maxValue(tail) => head
+            case _ :: tail => maxValue(tail)
+        }
+    }
 
     /** Q12 (3p)
      * given two Ints, generate the List[Int] with both numbers inclusive
@@ -37,7 +51,13 @@ object Practice {
      * intList(2,7) // List(2,3,4,5,6,7)
      * intList(3,0) // List()
      */
-    def intList(a: Int, b: Int) : List[Int] = ???
+    def intList(a: Int, b: Int) : List[Int] = {
+        (a,b) match {
+            case a > b => Nil
+            case a==b => b :: Nil
+            case (a, b) => a :: intList(a+1, b)
+        }
+    }
 
     /**
      * Q13 (7p)
@@ -60,5 +80,15 @@ object Practice {
      * so although 2, 6 and 10 satisfy the function, they are thrown out.
      */
     // a helper method which you've written yourself
-    def myFilter[A](xs: List[A], f: A => Boolean) : List[A] = ???
+    def myFilter[A](xs: List[A], f: A => Boolean) : List[A] = {
+        helper(xs.filter(f), 0)
+
+        def helper(xs: List[A], n: Int): List[A] = {
+            (xs, n) match {
+                case (head::tail, n) if n%2==0 => head :: helper(tail, n+1)
+                case (head::tail, n) if n%2==1 => helper(tail, n+1)
+                case (Nil, _) => Nil
+            }
+        }
+    }
 }
