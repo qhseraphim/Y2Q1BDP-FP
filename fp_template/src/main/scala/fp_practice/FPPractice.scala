@@ -15,7 +15,9 @@ object FPPractice {
       * @param xs the list to process.
       * @return the sum of the first 10 numbers larger than 25.
       */
-    def first10Above25(xs: List[Int]): Int = ???
+    def first10Above25(xs: List[Int]): Int = {
+        xs.filter((x) => x>25).take(10).sum
+    }
 
     /** Q21 (5p)
       * Provided with a list of all grades for each student of a course,
@@ -25,7 +27,16 @@ object FPPractice {
       * @param grades a list containing a list of grades for each student.
       * @return the amount of students with passing grades.
       */
-    def passingStudents(grades: List[List[Int]]): Int = ???
+    def passingStudents(grades: List[List[Int]]): Int = {
+        def passingAverage(gradeList: List[Int]): Boolean = {
+            ((gradeList.sum.toDouble / gradeList.size) >= 5.75)
+        }
+        def noneLowerThanFour(gradeList: List[Int]): Boolean = {
+            gradeList.forall(_ >= 4.0)
+        }
+    grades.count(grade => passingAverage(grade) && noneLowerThanFour(grade))
+
+    }
 
     /** Q22 (6p)
       * Return the length of the first list of which the first item's value is equal to the sum of all other items.
@@ -36,5 +47,16 @@ object FPPractice {
       * Read the documentation on the `Option` class to find out what you should return.
       * Hint: it is very similar to the `OptionalInt` you saw earlier.
       */
-    def headSumsTail(xs: List[List[Int]]): Option[Int] = ???
+    def headSumsTail(xs: List[List[Int]]): Option[Int] = {
+        def weirdCriteria(subList : List[Int]): Boolean = {
+            subList match{
+                case head::tail => subList.head == subList.tail.sum
+                case Nil => false
+            }
+        }
+        xs.find(weirdCriteria) match {
+            case Some(firstList) => Some(firstList.length)
+            case None => None
+        }
+    }
 }
