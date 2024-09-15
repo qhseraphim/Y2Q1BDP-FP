@@ -25,7 +25,12 @@ object Dataset {
    * @param input the list of commits to process.
    * @return the average amount of additions in the commits that have stats data.
    */
-  def avgAdditions(input: List[Commit]): Int = ???
+  def avgAdditions(input: List[Commit]): Int = {
+    //maps commits to the stats (flat map ignores the options that are none without needing a filter seperately)
+    val stats = input.flatMap(commit => commit.stats)
+    val additions = stats.map(stat => stat.additions)
+    additions.sum/additions.length
+  }
 
   /** Q24 (4p)
    * Find the hour of day (in 24h notation, UTC time) during which the most javascript (.js) files are changed in commits.
@@ -34,9 +39,12 @@ object Dataset {
    * Hint: for the time, use `SimpleDateFormat` and `SimpleTimeZone`.
    *
    * @param input list of commits to process.
-   * @return the hour and the amount of files changed during this hour.
+   * @return the hour and the amount of files changed during thi s hour.
    */
-  def jsTime(input: List[Commit]): (Int, Int) = ???
+  def jsTime(input: List[Commit]): (Int, Int) = {
+    val jscommits = input.filter(commit => commit.files.exists(file => file.filename.exists(optional => optional.endsWith(".js"))))
+
+  }
 
 
   /** Q25 (5p)
