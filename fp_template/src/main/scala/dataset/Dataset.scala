@@ -1,9 +1,9 @@
 package dataset
 
-import dataset.util.Commit.Commit
+import dataset.util.Commit.{Commit, CommitData, Parent}
 
 import java.text.SimpleDateFormat
-import java.util.SimpleTimeZone
+import java.util.{Calendar, SimpleTimeZone}
 import scala.math.Ordering.Implicits._
 
 /**
@@ -25,7 +25,9 @@ object Dataset {
    * @param input the list of commits to process.
    * @return the average amount of additions in the commits that have stats data.
    */
-  def avgAdditions(input: List[Commit]): Int = ???
+  def avgAdditions(input: List[Commit]): Int = {
+    input.map(_.stats.get.additions).sum / input.size
+  }
 
   /** Q24 (4p)
    * Find the hour of day (in 24h notation, UTC time) during which the most javascript (.js) files are changed in commits.
@@ -36,8 +38,26 @@ object Dataset {
    * @param input list of commits to process.
    * @return the hour and the amount of files changed during this hour.
    */
-  def jsTime(input: List[Commit]): (Int, Int) = ???
+  def jsTime(input: List[Commit]): (Int, Int) = {
+    val formatter = new SimpleDateFormat("HH")
+    val timezone = new SimpleTimeZone(0, "UTC")
+    formatter.setTimeZone(timezone)
 
+    // Process the commits, group by hour, and sum up the JavaScript file counts
+    val times = input
+      .flatMap { commit =>
+        val hour = formatter.format(commit.commit.committer.date).toInt
+        val jsFileCount = commit.files.count(file => file.filename.exists(_.endsWith(".js")))
+        if (jsFileCount > 0) Some(hour -> jsFileCount) else None
+      }
+      .groupBy(_._1)
+      .mapValues(_.map(_._2).sum)  // Sum the JS file counts for each hour
+      .withDefaultValue(0)         // Default value of 0 for hours with no JS files
+
+    // Find the hour with the maximum number of JS files
+    val (maxHour, maxCount) = times.maxBy(_._2)
+    (maxHour, maxCount)
+  }
 
   /** Q25 (5p)
    * For a given repository, output the name and amount of commits for the person
@@ -48,8 +68,13 @@ object Dataset {
    * @param repo  the repository name to consider.
    * @return the name and amount of commits for the top committer.
    */
-  def topCommitter(input: List[Commit], repo: String): (String, Int) = ???
-
+  def topCommitter(input: List[Commit], repo: String): (String, Int) = {
+    input
+      .filter(c => c.url.contains(repo))
+      .groupBy(_.commit.author.name)
+      .map { case (author, commits) => (author, commits.size) }
+      .maxBy(_._2)
+  }
   /** Q26 (9p)
    * For each repository, output the name and the amount of commits that were made to this repository in 2019 only.
    * Leave out all repositories that had no activity this year.
@@ -60,8 +85,21 @@ object Dataset {
    *         Example output:
    *         Map("KosDP1987/students" -> 1, "giahh263/HQWord" -> 2)
    */
-  def commitsPerRepo(input: List[Commit]): Map[String, Int] = ???
+  def commitsPerRepo(input: List[Commit]): Map[String, Int] = {
+    def repoName(url: String): String = url.split("/").toList match {
+      case _ :: _ :: _ :: "repos" :: x :: y :: "commits" :: _ => s"$x/$y"
+    }
 
+    val formatter = new SimpleDateFormat("YYYY")
+    val timezone = new SimpleTimeZone(0, "UTC")
+    formatter.setTimeZone(timezone)
+
+    input
+      .filter(commit => formatter.format(commit.commit.committer.date).toInt == 2019)
+      .map(commit => repoName(commit.url))
+      .groupBy(identity)
+      .mapValues(_.size)
+  }
 
   /** Q27 (9p)
    * Derive the 5 file types that appear most frequent in the commit logs.
@@ -69,8 +107,22 @@ object Dataset {
    * @param input the list of commits to process.
    * @return 5 tuples containing the file extension and frequency of the most frequently appeared file types, ordered descendingly.
    */
-  def topFileFormats(input: List[Commit]): List[(String, Int)] = ???
+  def topFileFormats(input: List[Commit]): List[(String, Int)] = {
+    def filetype(filename: String): String = {
+      val spl = filename.split("\\.")
+      if (spl.length > 1) spl.last else "file"
+    }
 
+    input
+      .flatMap(_.files.map(_.filename.get))
+      .map(filetype)
+      .filter(_ != "file")
+      .groupBy(identity)
+      .mapValues(_.size)
+      .toList
+      .sortBy(-_._2)
+      .take(5)
+  }
 
   /** Q28 (9p)
    *
@@ -85,5 +137,25 @@ object Dataset {
    *
    * Hint: for the time, use `SimpleDateFormat` and `SimpleTimeZone`.
    */
-  def mostProductivePart(input: List[Commit]): (String, Int) = ???
+  def mostProductivePart(input: List[Commit]): (String, Int) = {
+    val formatter = new SimpleDateFormat("HH")
+    val timezone = new SimpleTimeZone(0, "UTC")
+    formatter.setTimeZone(timezone)
+
+    def timeOfDay(c: Commit, start: Int, end: Int): Boolean = formatter.format(c.commit.committer.date).toInt match {
+      case x if x >= start && x < end => true
+      case _ => false
+    }
+
+    def sumOfTime(start: Int, end: Int, input: List[Commit]): Int =
+      input.count(c => timeOfDay(c, start, end))
+
+    val morning = sumOfTime(5, 12, input)
+    val afternoon = sumOfTime(12, 17, input)
+    val evening = sumOfTime(17, 21, input)
+    val night = sumOfTime(21, 24, input) + sumOfTime(0, 5, input)
+
+    List(("morning", morning), ("afternoon", afternoon), ("evening", evening), ("night", night))
+      .maxBy(_._2)
+  }
 }

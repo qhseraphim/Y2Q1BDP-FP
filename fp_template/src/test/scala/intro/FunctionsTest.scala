@@ -20,22 +20,22 @@ class FunctionsTest extends FunSuite {
 
     test("Fizz") {
         assertResult("Fizz") {
-//            fizzBuzz(3)
-            fail("To activate the test, uncomment the previous line and comment this line")
+            fizzBuzz(3)
+//            fail("To activate the test, uncomment the previous line and comment this line")
         }
     }
 
     test("Buzz") {
         assertResult("Buzz") {
-//            fizzBuzz(5)
-            fail("To activate the test, uncomment the previous line and comment this line")
+            fizzBuzz(5)
+//            fail("To activate the test, uncomment the previous line and comment this line")
         }
     }
 
     test("lambda") {
         assertResult(true, "lambda function definition is incorrect") {
-            //isEven(4)
-            fail("first provide the lambda definition, then remove this line and uncomment the above line")
+            isEven(4)
+//            fail("first provide the lambda definition, then remove this line and uncomment the above line")
         }
     }
 

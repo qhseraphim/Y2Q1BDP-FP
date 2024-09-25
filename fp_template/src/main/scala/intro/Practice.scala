@@ -18,7 +18,10 @@ object Practice {
       * @param n amount of items to take.
       * @return the first n items of xs.
       */
-    def firstN(xs: List[Int], n: Int): List[Int] = ???
+    def firstN(xs: List[Int], n: Int): List[Int] = xs match {
+        case x :: tail => if(n > 1) { x :: firstN(tail, n - 1) } else if (n > 0) { List(x) } else { List() }
+        case Nil => Nil
+    }
 
 
     /** Q11 (4p)
@@ -28,7 +31,13 @@ object Practice {
       * @param xs list to process.
       * @return the maximum value in the list.
       */
-    def maxValue(xs: List[Int]): Int = ???
+    def maxValue(xs: List[Int]): Int = {
+        def rec(xs: List[Int], highest: Int): Int =  xs match {
+            case x :: tail => if(x > highest) { rec(tail, x) } else { rec(tail, highest )}
+            case List() => highest
+        }
+        rec(xs, Int.MinValue)
+    }
 
     /** Q12 (3p)
      * given two Ints, generate the List[Int] with both numbers inclusive
@@ -37,7 +46,10 @@ object Practice {
      * intList(2,7) // List(2,3,4,5,6,7)
      * intList(3,0) // List()
      */
-    def intList(a: Int, b: Int) : List[Int] = ???
+    def intList(a: Int, b: Int): List[Int] = a match {
+        case _ if a <= b => a :: intList(a + 1, b)
+        case _ => List()
+    }
 
     /**
      * Q13 (7p)
@@ -60,5 +72,16 @@ object Practice {
      * so although 2, 6 and 10 satisfy the function, they are thrown out.
      */
     // a helper method which you've written yourself
-    def myFilter[A](xs: List[A], f: A => Boolean) : List[A] = ???
+    def myFilter[A](xs: List[A], f: A => Boolean) : List[A] = {
+        def matchFilter(xs: List[A], f: A => Boolean) : List[A] = xs match {
+            case x :: tail => if(f(x)) { x :: matchFilter(tail, f) } else { matchFilter(tail, f) }
+            case Nil => Nil
+        }
+        def remove(xs: List[A]): List[A] = xs match {
+            case a :: _ :: tail => a :: remove(tail)
+            case a :: Nil => List(a) // Keep the last element if it exists
+            case Nil => Nil // Base case for empty list
+        }
+        remove( matchFilter(xs, f) )
+    }
 }
