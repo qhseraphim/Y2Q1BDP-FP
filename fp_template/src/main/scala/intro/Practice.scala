@@ -1,47 +1,42 @@
 package intro
 
 /**
-  * This part has some exercises for you to practice with the recursive lists and functions.
-  * For the exercises in this part you are _not_ allowed to use library functions,
-  * you should implement everything yourself.
-  * Use recursion to process lists, iteration is not allowed.
-  *
-  * This part is worth 16 points.
-  */
+ * This part has some exercises for you to practice with the recursive lists and functions.
+ * For the exercises in this part you are _not_ allowed to use library functions,
+ * you should implement everything yourself.
+ * Use recursion to process lists, iteration is not allowed.
+ *
+ * This part is worth 16 points.
+ */
 object Practice {
 
     /** Q10 (2p)
-      * Implement the function that returns the first `n` elements from the list.
-      * Note that `n` is an upper bound, the list might not have `n` elements.
-      *
-      * @param xs list to take items from.
-      * @param n amount of items to take.
-      * @return the first n items of xs.
-      */
-    def firstN(xs: List[Int], n: Int): List[Int] = {
-
-        (xs, n) match {
-            case (_, n) if (n<=0) => Nil
-            case (head :: tail, _) => head :: firstN(tail, n-1)
-            case (head :: Nil, _) => List(head)
-            case (Nil, _) => Nil
-        }
+     * Implement the function that returns the first `n` elements from the list.
+     * Note that `n` is an upper bound, the list might not have `n` elements.
+     *
+     * @param xs list to take items from.
+     * @param n amount of items to take.
+     * @return the first n items of xs.
+     */
+    def firstN(xs: List[Int], n: Int): List[Int] = xs match {
+        case x :: tail => if(n > 1) { x :: firstN(tail, n - 1) } else if (n > 0) { List(x) } else { List() }
+        case Nil => Nil
     }
 
 
     /** Q11 (4p)
-      * Implement the function that returns the maximum value in the list.
-      * If the list is empty, return `Int.MinValue`
-      *
-      * @param xs list to process.
-      * @return the maximum value in the list.
-      */
+     * Implement the function that returns the maximum value in the list.
+     * If the list is empty, return `Int.MinValue`
+     *
+     * @param xs list to process.
+     * @return the maximum value in the list.
+     */
     def maxValue(xs: List[Int]): Int = {
-        xs match {
-            case Nil => Int.MinValue
-            case head :: tail if head > maxValue(tail) => head
-            case _ :: tail => maxValue(tail)
+        def rec(xs: List[Int], highest: Int): Int =  xs match {
+            case x :: tail => if(x > highest) { rec(tail, x) } else { rec(tail, highest )}
+            case List() => highest
         }
+        rec(xs, Int.MinValue)
     }
 
     /** Q12 (3p)
@@ -51,12 +46,9 @@ object Practice {
      * intList(2,7) // List(2,3,4,5,6,7)
      * intList(3,0) // List()
      */
-    def intList(a: Int, b: Int) : List[Int] = {
-        (a,b) match {
-            case (a,b) if a > b => Nil
-            case (a,b) if a==b => b :: Nil
-            case (a, b) => a :: intList(a+1, b)
-        }
+    def intList(a: Int, b: Int): List[Int] = a match {
+        case _ if a <= b => a :: intList(a + 1, b)
+        case _ => List()
     }
 
     /**
@@ -81,14 +73,15 @@ object Practice {
      */
     // a helper method which you've written yourself
     def myFilter[A](xs: List[A], f: A => Boolean) : List[A] = {
-
-        def helper(xs: List[A], n: Int): List[A] = {
-            (xs, n) match {
-                case (head::tail, n) if n%2==0 => head :: helper(tail, n+1)
-                case (head::tail, n) if n%2==1 => helper(tail, n+1)
-                case (Nil, _) => Nil
-            }
+        def matchFilter(xs: List[A], f: A => Boolean) : List[A] = xs match {
+            case x :: tail => if(f(x)) { x :: matchFilter(tail, f) } else { matchFilter(tail, f) }
+            case Nil => Nil
         }
-        return helper(xs.filter(f), 0);
+        def remove(xs: List[A]): List[A] = xs match {
+            case a :: _ :: tail => a :: remove(tail)
+            case a :: Nil => List(a) // Keep the last element if it exists
+            case Nil => Nil // Base case for empty list
+        }
+        remove( matchFilter(xs, f) )
     }
 }
