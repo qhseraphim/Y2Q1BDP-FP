@@ -34,6 +34,14 @@ object Functions {
    *           - "FizzBuzz" if the given number is divisible by both 3 and 5
    *           - Otherwise return the string representation of the number, e.g. "2"
    */
+  def fizzBuzz(i: Int): String ={
+    i match {
+      case i if (i%3==0 && i%5==0)=> return "FizzBuzz"
+      case i if i%3==0 => return "Fizz"
+      case i if i%5==0 => return "Buzz"
+      case _ => return i.toString
+    }
+  }
 
 
   /**

@@ -193,6 +193,8 @@ object FPFunctions {
         }
     }
 
+
+
     /** Q15 (5p)
       * Takes a function that returns a boolean and returns all elements that satisfy it.
       * @param xs the list to filter.
@@ -251,7 +253,7 @@ object FPFunctions {
       * @return the result of folding `xs` with `f`.
       */
     def foldR[A, B](xs: List[A], f: (A, B) => B, init: B): B = {
-        foldL(xs.reverse, f, init)
+        return foldL(xs.reverse, (b: B, a: A) => f(a, b), init)
 
     }
 
@@ -270,7 +272,7 @@ object FPFunctions {
             case (Nil, Nil) => Nil
             case (_, Nil) => Nil
             case (Nil, _) => Nil
-            case (headx::tailx, heady::taily) => (headx, taily) :: zip(tailx, taily)
+            case (headx::tailx, heady::taily) => (headx, heady) :: zip(tailx, taily)
         }
 
     }

@@ -53,8 +53,8 @@ object Practice {
      */
     def intList(a: Int, b: Int) : List[Int] = {
         (a,b) match {
-            case a > b => Nil
-            case a==b => b :: Nil
+            case (a,b) if a > b => Nil
+            case (a,b) if a==b => b :: Nil
             case (a, b) => a :: intList(a+1, b)
         }
     }
@@ -81,7 +81,6 @@ object Practice {
      */
     // a helper method which you've written yourself
     def myFilter[A](xs: List[A], f: A => Boolean) : List[A] = {
-        helper(xs.filter(f), 0)
 
         def helper(xs: List[A], n: Int): List[A] = {
             (xs, n) match {
@@ -90,5 +89,6 @@ object Practice {
                 case (Nil, _) => Nil
             }
         }
+        return helper(xs.filter(f), 0);
     }
 }
